@@ -36,7 +36,6 @@ public class PerceptronDuasEntradas {
     }
 
     public double calculoU(int i){
-        epoca++;
         return  (dados.x1[i]*pesos.w1 + dados.x2[i]*pesos.w2) + bias;
     }
 
@@ -45,8 +44,8 @@ public class PerceptronDuasEntradas {
      *
      *
      * * */
-    public void executar(){
-        this.apresentacao();
+    public Pesos executar(){
+        pesos.epoca++;
         int i = 0;
 
         while(i < dados.y.length){
@@ -82,20 +81,53 @@ public class PerceptronDuasEntradas {
         System.out.println("\n");
 
 
+        return pesos;
 
     }
 
-    private void apresentacao() {
-        System.out.println("O presente programa tem por objetivo utilizar de uma Rede Neural Perceptron, para criar um modelo para uma função degrau, a partir da tabela verdade de uma porta lógica OR.");
-        System.out.println("São os dados: ");
-        System.out.println("$============$");
-        System.out.println("x1 | x2 | y");
-        System.out.println(" 0 |  0 | 0");
-        System.out.println(" 0 |  1 | 1");
-        System.out.println(" 1 |  0 | 1");
-        System.out.println(" 1 |  1 | 1");
-        System.out.println("$============$");
+    public Pesos executarNovoPeso(Pesos pesoEpocaAnterior){
+        pesoEpocaAnterior.epoca++;
+        int i = 0;
+
+        while(i < dados.y.length){
+            boolean ativado = false;
+            double u = calculoU(i);
+            double gu = funcaoDeAtivacao(u);
+            if(gu == dados.y[i]){
+                ativado = true;
+                System.out.println("&----------------------------------------&");
+                System.out.println("Foi ativado? " + (ativado ? "Sim!" : "Não!") + " Valor objetivado: y= " + dados.y[i]);
+                System.out.println("&----------------------------------------&");
+                System.out.println("\n");
+            }
+            if(!ativado){
+                System.out.println("================> y[" + i + "]: " + dados.y[i] + "<================");
+                pesoEpocaAnterior.w1 = calculoNovoPeso(this.dados.y[i], this.dados.x1[i], i, gu) + this.pesos.w1;
+                pesoEpocaAnterior.w2 = calculoNovoPeso(this.dados.y[i], this.dados.x2[i], i, gu) + this.pesos.w2;
+                System.out.println("\n");
+            }else{
+                i++;
+            }
+
+        }
+
+        System.out.println("*----------------------------------*");
+        System.out.println("Os pesos final foram: ");
+        System.out.println("w1: " + pesoEpocaAnterior.w1);
+        System.out.println("w2: " + pesoEpocaAnterior.w2);
+        System.out.println("bias: " + this.bias);
+        System.out.println("Taxa de aprendizado: " + this.n);
+        System.out.println("O modelo final fica: " + "u = " + pesoEpocaAnterior.w1 + "*x1 + " + pesoEpocaAnterior.w2 + "*x2 + (" + this.bias + ")");
+        System.out.println("*----------------------------------*");
+        System.out.println("\n");
+
+
+        if(pesos.w1 == pesoEpocaAnterior.w1 && pesos.w2 == pesoEpocaAnterior.w2) pesoEpocaAnterior.sucesso = true;
+        return pesoEpocaAnterior;
+
     }
+
+
 
     /**
      * Calculo do novo peso
@@ -106,7 +138,6 @@ public class PerceptronDuasEntradas {
     public double calculoNovoPeso(double Yi, double xi, int i, double gu){
 
         System.out.println("===============================================");
-        System.out.println("epoca: " + this.epoca);
 
         System.out.println("n: " + this.n);
 
